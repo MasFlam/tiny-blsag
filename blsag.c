@@ -1,23 +1,23 @@
 // Tiny bLSAG signature implementation using mjosaarinen's tiny_sha3
 // and libsodium ristretto255, released to the public domain.
-// - Łukasz "masflam" Drukała, 2024-03-27
+// - Łukasz "masflam" Drukała, 2024-03-30
 
 #include "blsag.h"
 #include "sha3.h"
 #include <sodium.h>
 #include <string.h>
 
-void hash_sha3(Hash *hash, const void *input, int input_size) {
+static void hash_sha3(Hash *hash, const void *input, int input_size) {
 	sha3(input, input_size, hash->bytes, sizeof(hash->bytes));
 }
 
-void hash_to_point_ristretto(Point *P, const void *input, int input_size) {
+static void hash_to_point_ristretto(Point *P, const void *input, int input_size) {
 	uint8_t hash[64];
 	sha3(input, input_size, hash, sizeof(hash));
 	crypto_core_ristretto255_from_hash(P->bytes, hash);
 }
 
-void hash_to_scalar_ristretto(Scalar *a, const void *input, int input_size) {
+static void hash_to_scalar_ristretto(Scalar *a, const void *input, int input_size) {
 	uint8_t hash[64];
 	sha3(input, input_size, hash, sizeof(hash));
 	crypto_core_ristretto255_scalar_reduce(a->bytes, hash);

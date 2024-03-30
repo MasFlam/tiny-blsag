@@ -1,6 +1,6 @@
 // Tiny bLSAG signature implementation using mjosaarinen's tiny_sha3
 // and libsodium ristretto255, released to the public domain.
-// - Łukasz "masflam" Drukała, 2024-03-27
+// - Łukasz "masflam" Drukała, 2024-03-30
 
 #ifndef _BLSAG_H_
 #define _BLSAG_H_
