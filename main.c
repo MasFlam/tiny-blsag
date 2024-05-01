@@ -30,8 +30,8 @@ int main() {
 	Scalar challenges[ring_size];
 	Scalar responses[ring_size];
 	
-	blsag_sign_ristretto(&msg, ring_size, pi, &kpi, &Kimg, ring, challenges, responses);
-	int accepted = blsag_verify_ristretto(&msg, ring_size, ring, &Kimg, &challenges[0], responses);
+	blsag_sign(&msg, ring_size, pi, &kpi, &Kimg, ring, challenges, responses);
+	int accepted = blsag_verify(&msg, ring_size, ring, &Kimg, &challenges[0], responses);
 	printf("accepted = %d\n", accepted);
 	return 0;
 }

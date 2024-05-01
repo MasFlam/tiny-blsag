@@ -1,6 +1,6 @@
 // Tiny bLSAG signature implementation using mjosaarinen's tiny_sha3
 // and libsodium ristretto255, released to the public domain.
-// - Łukasz "masflam" Drukała, 2024-03-30
+// - Łukasz "masflam" Drukała, 2024-05-01
 
 #ifndef _BLSAG_H_
 #define _BLSAG_H_
@@ -25,25 +25,31 @@ typedef struct {
 	uint8_t bytes[32];
 } Hash;
 
-void blsag_sign_ristretto(
+void blsag_sign(
 	const Hash *msg,
 	int n,
 	int pi,
-	Scalar *k_pi,
+	const Scalar *k_pi,
 	Point *Kimg,
-	const Point *K,
-	Scalar *c,
-	Scalar *r
+	const Point K[n],
+	Scalar c[n],
+	Scalar r[n]
 );
 
 // Return whether the signature is valid
-int blsag_verify_ristretto(
+int blsag_verify(
 	const Hash *msg,
 	int n,
-	const Point *K,
+	const Point K[n],
 	const Point *Kimg,
 	const Scalar *c0,
-	const Scalar *r
+	const Scalar r[n]
+);
+
+void blsag_gen_key_image(
+	Point *Kimg,
+	const Scalar *k,
+	const Point *K
 );
 
 #endif

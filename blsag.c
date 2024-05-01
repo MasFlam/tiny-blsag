@@ -1,6 +1,6 @@
 // Tiny bLSAG signature implementation using mjosaarinen's tiny_sha3
 // and libsodium ristretto255, released to the public domain.
-// - Łukasz "masflam" Drukała, 2024-03-30
+// - Łukasz "masflam" Drukała, 2024-05-01
 
 #include "blsag.h"
 #include "sha3.h"
@@ -23,15 +23,15 @@ static void hash_to_scalar_ristretto(Scalar *a, const void *input, int input_siz
 	crypto_core_ristretto255_scalar_reduce(a->bytes, hash);
 }
 
-void blsag_sign_ristretto(
+void blsag_sign(
 	const Hash *msg,
 	int n,
 	int pi,
-	Scalar *k_pi,
+	const Scalar *k_pi,
 	Point *Kimg,
-	const Point *K,
-	Scalar *c,
-	Scalar *r
+	const Point K[n],
+	Scalar c[n],
+	Scalar r[n]
 ) {
 	// Locals (we could reuse some instead)
 	Point Hp_Kpi;
@@ -108,13 +108,13 @@ void blsag_sign_ristretto(
 }
 
 // Return whether the signature is valid
-int blsag_verify_ristretto(
+int blsag_verify(
 	const Hash *msg,
 	int n,
-	const Point *K,
+	const Point K[n],
 	const Point *Kimg,
 	const Scalar *c0,
-	const Scalar *r
+	const Scalar r[n]
 ) {
 	// Locals (we could reuse some instead)
 	Point ci_Ki;
@@ -166,4 +166,21 @@ int blsag_verify_ristretto(
 	sodium_memzero(to_hash_point, sizeof(to_hash_point));
 	
 	return accepted;
+}
+
+void blsag_gen_key_image(
+	Point *Kimg,
+	const Scalar *k,
+	const Point *K
+) {
+	Point Hp_K;
+	uint8_t to_hash[BLSAG_KIMG_DOMAIN_SIZE + 32];
+	
+	memcpy(&to_hash[0], BLSAG_KIMG_DOMAIN, BLSAG_KIMG_DOMAIN_SIZE);
+	memcpy(&to_hash[BLSAG_KIMG_DOMAIN_SIZE], K->bytes, sizeof(K->bytes));
+	hash_to_point_ristretto(&Hp_K, to_hash, sizeof(to_hash));
+	(void)! crypto_scalarmult_ristretto255(Kimg->bytes, k->bytes, Hp_K.bytes);
+	
+	sodium_memzero(Hp_K.bytes, sizeof(Point));
+	sodium_memzero(to_hash, sizeof(to_hash));
 }
